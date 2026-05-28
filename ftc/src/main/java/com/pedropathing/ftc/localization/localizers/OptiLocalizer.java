@@ -11,8 +11,15 @@ import android.hardware.usb.UsbManager;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Vector;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.HashMap;
 
@@ -53,6 +60,8 @@ public class OptiLocalizer implements Localizer {
 
     private Thread pollThread;
     private volatile boolean running = false;
+    // IMU
+    private final IMU imu;
 
     public OptiLocalizer(HardwareMap hardwareMap, double sensorDPI) {
         this.sensorDPI = sensorDPI;
@@ -62,6 +71,11 @@ public class OptiLocalizer implements Localizer {
             startPolling();
         }
         timer.reset();
+
+        this.imu = hardwareMap.get(IMU.class, "imu");
+
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
+        imu.resetYaw();
     }
 
     private boolean initUsb() {
@@ -260,8 +274,8 @@ public class OptiLocalizer implements Localizer {
      * This resets the IMU of the localizer, if applicable.
      */
     @Override
-    public void resetIMU() throws InterruptedException {
-        totalHeading = 0;
+    public void resetIMU() {
+        this.imu.resetYaw();
     }
 
     /**
@@ -271,7 +285,8 @@ public class OptiLocalizer implements Localizer {
      */
     @Override
     public double getIMUHeading() {
-        return this.currentPose.getHeading();
+        Orientation orientation = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        return orientation.firstAngle;
     }
 
     /**
