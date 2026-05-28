@@ -207,7 +207,7 @@ public class OptiLocalizer implements Localizer {
         double dX = (localX / sensorDPI) * forwardMultiplier;
         double dY = (localY / sensorDPI) * lateralMultiplier;
 
-        double heading = currentPose.getHeading();
+        double heading = getIMUHeading();
         double deltaHeading = heading - lastHeading;
         this.lastHeading = heading;
         this.totalHeading += deltaHeading;
@@ -285,7 +285,7 @@ public class OptiLocalizer implements Localizer {
      */
     @Override
     public double getIMUHeading() {
-        Orientation orientation = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        Orientation orientation = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         return orientation.firstAngle;
     }
 
