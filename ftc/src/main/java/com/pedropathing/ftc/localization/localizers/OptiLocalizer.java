@@ -122,8 +122,8 @@ public class OptiLocalizer implements Localizer {
 
                 if (len >= 3) {
                     synchronized (this) {
-                        this.accumulatedDeltaX += buf[1];
-                        this.accumulatedDeltaY += buf[2];
+                        this.accumulatedDeltaX += buf[2];
+                        this.accumulatedDeltaY += buf[1];
                     }
                 }
             }
